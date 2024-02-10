@@ -79,6 +79,15 @@ class SpiderFootCli(cmd.Cmd):
     }
 
     def default(self, line):
+        """This function is used to handle unknown commands by printing a message to the user.
+        Parameters:
+            - line (str): The command entered by the user.
+        Returns:
+            - None: This function does not return any value.
+        Processing Logic:
+            - Ignores lines starting with '#'.
+            - Prints a message for unknown commands."""
+        
         if line.startswith('#'):
             return
 
@@ -86,16 +95,70 @@ class SpiderFootCli(cmd.Cmd):
 
     # Auto-complete for these commands
     def complete_start(self, text, line, startidx, endidx):
+        """"Completes the given text based on the default completion options.
+        Parameters:
+            - text (str): The text to be completed.
+            - line (str): The current input line.
+            - startidx (int): The start index of the text to be completed.
+            - endidx (int): The end index of the text to be completed.
+        Returns:
+            - str: The completed text.
+        Processing Logic:
+            - Uses default completion options.
+            - Returns completed text.
+            - Parameters must be in the given order.
+            - Returns empty string if no completion options are available.""""
+        
         return self.complete_default(text, line, startidx, endidx)
 
     def complete_find(self, text, line, startidx, endidx):
+        """"Completes the given text with default values based on the given line and indices."
+        Parameters:
+            - text (str): The text to be completed.
+            - line (str): The current line where the completion is being performed.
+            - startidx (int): The starting index of the text to be completed.
+            - endidx (int): The ending index of the text to be completed.
+        Returns:
+            - str: The completed text.
+        Processing Logic:
+            - Uses the complete_default method.
+            - Based on line and indices.
+            - Returns the completed text."""
+        
         return self.complete_default(text, line, startidx, endidx)
 
     def complete_data(self, text, line, startidx, endidx):
+        """Function:
+        Completes the given data by calling the default completion function.
+        Parameters:
+            - text (str): The text to be completed.
+            - line (str): The current line of input.
+            - startidx (int): The starting index of the text to be completed.
+            - endidx (int): The ending index of the text to be completed.
+        Returns:
+            - str: The completed data.
+        Processing Logic:
+            - Calls the default completion function.
+            - Returns the result of the default completion function."""
+        
         return self.complete_default(text, line, startidx, endidx)
 
     # Command completion for arguments
     def complete_default(self, text, line, startidx, endidx):
+        """This function completes the given text with default values based on the provided line, startidx, and endidx parameters.
+        Parameters:
+            - text (str): The text to be completed.
+            - line (str): The current line of input.
+            - startidx (int): The starting index of the text to be completed.
+            - endidx (int): The ending index of the text to be completed.
+        Returns:
+            - list: A list of possible completions for the given text.
+        Processing Logic:
+            - Checks if the given text and line parameters are strings.
+            - If the "-m" flag is present in the line and appears after the "-t" flag, it loops through the modules list and adds any modules that start with the given text to the return list.
+            - If the "-t" flag is present in the line and appears after the "-m" flag, it loops through the types list and adds any types that start with the given text to the return list.
+            - Returns the completed list of possible completions."""
+        
         ret = list()
 
         if not isinstance(text, str):
@@ -116,6 +179,28 @@ class SpiderFootCli(cmd.Cmd):
         return ret
 
     def dprint(self, msg, err=False, deb=False, plain=False, color=None):
+        """Function: dprint
+        Parameters:
+            - self (object): Instance of the class.
+            - msg (str): Message to be printed.
+            - err (bool): Flag to indicate if the message is an error.
+            - deb (bool): Flag to indicate if the message is for debugging.
+            - plain (bool): Flag to indicate if the message should be printed without formatting.
+            - color (str): Color to be used for the message.
+        Returns:
+            - None: This function does not return any value.
+        Processing Logic:
+            - Sets the prefix and color based on the error, debug, and color flags.
+            - If the message is for debugging and debug flag is not set, the function returns without printing anything.
+            - If the color flag is set, the prefix is set to an empty string and the color is set to the provided color.
+            - If the error flag is set or the silent flag is not set, the message is printed.
+            - If the spool flag is set, the message is written to the spool file.
+            - The spool file is opened in append mode and the message is written to it.
+            - The spool file is closed after writing the message.
+        Example:
+            dprint(self, "Hello World!")
+            # Output: [*] Hello World!"""
+        
         cout = ""
         sout = ""
         pfx = ""
@@ -203,6 +288,17 @@ class SpiderFootCli(cmd.Cmd):
 
     # Run before all commands to handle history and spooling
     def precmd(self, line):
+        """Saves user input to history and spool files.
+        Parameters:
+            - line (str): User input.
+        Returns:
+            - str: User input.
+        Processing Logic:
+            - Saves user input to history file.
+            - Saves user input to spool file.
+            - Uses codecs to open and write to files.
+            - Returns the user input."""
+        
         if self.ownopts['cli.history'] and line != "EOF":
             f = codecs.open(self.ownopts["cli.history_file"], "a", encoding="utf-8")
             f.write(line)
@@ -218,14 +314,50 @@ class SpiderFootCli(cmd.Cmd):
 
     # Debug print
     def ddprint(self, msg):
+        """Prints a message using the dprint function with the deb parameter set to True.
+        Parameters:
+            - msg (str): The message to be printed.
+        Returns:
+            - None: This function does not return any value.
+        Processing Logic:
+            - Calls the dprint function with the deb parameter set to True."""
+        
         self.dprint(msg, deb=True)
 
     # Error print
     def edprint(self, msg):
+        """Prints an error message to the console.
+        Parameters:
+            - msg (str): The error message to be printed.
+        Returns:
+            - None: This function does not return any value.
+        Processing Logic:
+            - Prints the error message to the console.
+            - Uses the dprint function with the err parameter set to True.
+            - This function is typically used for debugging purposes.
+            - Can be used in conjunction with the dprint function to print both regular and error messages."""
+        
         self.dprint(msg, err=True)
 
     # Print nice tables.
     def pretty(self, data, titlemap=None):
+        """Function: pretty(self, data, titlemap=None)
+        Parameters:
+            - self (object): The object to be processed.
+            - data (list or dict): The data to be formatted.
+            - titlemap (dict, optional): A dictionary mapping column names to desired titles. Defaults to None.
+        Returns:
+            - str: A formatted string containing the data.
+        Processing Logic:
+            - Formats a list or dictionary into a string.
+            - Uses column titles if provided.
+            - Each column is separated by a single space.
+            - Each row is separated by a newline character.
+            - If a title is longer than the longest value in the column, the title will be truncated.
+            - If a value is longer than the longest title in the column, the value will be truncated.
+            - If a column has no title, it will be skipped.
+            - If a column has no values, it will be skipped."""
+        
         if not data:
             return ""
 
@@ -346,6 +478,19 @@ class SpiderFootCli(cmd.Cmd):
 
     # Make a request to the SpiderFoot server
     def request(self, url, post=None):
+        """Requests data from a given URL and returns the response text if successful.
+        Parameters:
+            - url (str): The URL to request data from.
+            - post (dict): Optional parameter for POST requests, containing the data to be posted.
+        Returns:
+            - str: The response text from the requested URL, if successful.
+        Processing Logic:
+            - Checks if the URL is valid.
+            - Sets the headers for the request.
+            - Attempts to fetch the data from the URL using either a GET or POST request.
+            - Returns the response text if the request is successful.
+            - Logs any errors that occur during the request."""
+        
         if not url:
             self.edprint("Invalid request URL")
             return None
@@ -397,15 +542,52 @@ class SpiderFootCli(cmd.Cmd):
             return None
 
     def emptyline(self):
+        """ self.text
+        "Returns the text from the provided parameter.
+        Parameters:
+            - self (object): The object containing the text.
+        Returns:
+            - str: The text from the provided object.
+        Processing Logic:
+            - Get text from object.
+            - Return text.
+        """"
+        
         return
 
     def completedefault(self, text, line, begidx, endidx):
+        """Function to return an empty list.
+        Parameters:
+            - text (str): Text to be processed.
+            - line (str): Line to be processed.
+            - begidx (int): Beginning index of the line.
+            - endidx (int): Ending index of the line.
+        Returns:
+            - list: Empty list.
+        Processing Logic:
+            - Return empty list to avoid errors."""
+        
         return []
 
     # Parse the command line, returns a list of lists:
     # sf> scans "blahblah test" | top 10 | grep foo ->
     # [[ 'blahblah test' ], [[ 'top', '10' ], [ 'grep', 'foo']]]
     def myparseline(self, cmdline, replace=True):
+        """This function parses a command line string and returns a list of two lists. The first list contains the command and its arguments, while the second list contains any pipe commands and their arguments.
+        Parameters:
+            - cmdline (str): The command line string to be parsed.
+            - replace (bool): If True, variables starting with '$' will be replaced with their corresponding values from self.ownopts. Defaults to True.
+        Returns:
+            - list: A list of two lists. The first list contains the command and its arguments, while the second list contains any pipe commands and their arguments.
+        Processing Logic:
+            - Parses the command line string using shlex.split().
+            - Replaces variables starting with '$' with their corresponding values from self.ownopts, if replace is True.
+            - Handles any pipe commands at the end of the command line.
+            - Returns a list of two lists, with the first list containing the command and its arguments, and the second list containing any pipe commands and their arguments.
+        Example:
+            myparseline("ls -l | grep .py", replace=True)
+            # Returns [['ls', '-l'], ['grep', '.py']]"""
+        
         ret = [list(), list()]
 
         if not cmdline:
@@ -447,6 +629,30 @@ class SpiderFootCli(cmd.Cmd):
     # Send the command output to the user, processing the pipes
     # that may have been used.
     def send_output(self, data, cmd, titles=None, total=True, raw=False):
+        """Send output to the user with optional processing.
+        Parameters:
+            - data (str): The data to be processed.
+            - cmd (str): The command to be processed.
+            - titles (list): A list of titles, if applicable.
+            - total (bool): Whether or not to display the total number of records.
+            - raw (bool): Whether or not the data is already in JSON format.
+        Returns:
+            - out (str): The processed output.
+        Processing Logic:
+            - Parse the data into JSON format.
+            - If the data is already in JSON format, set the total number of records to 0.
+            - If the output format is "json", use the json.dumps() function to format the data.
+            - If the output format is "pretty", use the pretty() function to format the data.
+            - If the output format is not recognized, return an error message.
+            - If there are no pipes, display the output and the total number of records.
+            - If there are pipes, process the output according to the pipe commands.
+            - If the pipe command is "regex", use the re.compile() function to find matches.
+            - If the pipe command is "str" or "grep", search for the specified string in the output.
+            - If the pipe command is "top", display the first n lines of the output.
+            - If the pipe command is "last", display the last n lines of the output.
+            - If the pipe command is "file", write the output to a file.
+            - If there is an error writing to the file, return an error message."""
+        
         out = None
         try:
             if raw:
@@ -1135,6 +1341,26 @@ class SpiderFootCli(cmd.Cmd):
 
     # Override the default help
     def print_topics(self, header, cmds, cmdlen, maxcol):
+        """Prints a list of available commands and their descriptions.
+        Parameters:
+            - header (str): Header to be displayed above the list of commands.
+            - cmds (list): List of available commands.
+            - cmdlen (int): Maximum length of a command.
+            - maxcol (int): Maximum number of columns to display.
+        Returns:
+            - None: This function does not return anything.
+        Processing Logic:
+            - Convert the list of commands and their descriptions into a JSON string.
+            - Send the JSON string to the output.
+            - Format the output with titles for the columns.
+            - Do not display a total at the end of the output.
+        Example:
+            >>> print_topics("Available Commands", ["help", "debug", "clear"], 10, 2)
+            Command | Description
+            help    | This help output.
+            debug   | Enable/Disable debug output.
+            clear   | Clear the screen."""
+        
         if not cmds:
             return
 
